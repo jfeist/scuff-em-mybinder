@@ -34,6 +34,8 @@ RUN /bin/bash -c "cd /tmp/scuff-em && \
     make -j 4 install && \
     ldconfig"
 
+RUN apt-get install -y gmsh
+
 # add a "dispatcher" script that can be called as, e.g.,
 # "scuff scatter" (which just calls scuff-scatter), and
 # which lists the available programs if called without arguments
