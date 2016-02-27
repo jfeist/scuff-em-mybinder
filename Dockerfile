@@ -35,5 +35,5 @@ RUN /bin/bash -c "source /home/main/anaconda2/bin/activate python3 && \
 
 USER main
 
-RUN cp -r /usr/local/share/scuff-em/examples notebooks
-ADD SiC.mie notebooks/SolidSphere/
+RUN cp -r /tmp/scuff-em/doc/docs/examples notebooks
+ADD SiC.mie notebooks/MieScattering
