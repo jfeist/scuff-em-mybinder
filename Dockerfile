@@ -22,18 +22,14 @@ RUN apt-get update && \
       git \
       gmsh
 
-# install swig for the python3 environment
-RUN /bin/bash -c "source /home/main/anaconda2/bin/activate python3 && conda install -y swig"
-
 # clone the latest scuff-em version from github, compile and install it
-RUN /bin/bash -c "source /home/main/anaconda2/bin/activate python3 && \
-    git clone https://github.com/HomerReid/scuff-em.git /tmp/scuff-em && \
+RUN git clone https://github.com/HomerReid/scuff-em.git /tmp/scuff-em && \
     cd /tmp/scuff-em && \
-    CPPFLAGS='-I/usr/include/hdf5/serial' LDFLAGS='-L/usr/lib/x86_64-linux-gnu/hdf5/serial' ./autogen.sh && \
+    CPPFLAGS='-I/usr/include/hdf5/serial' LDFLAGS='-L/usr/lib/x86_64-linux-gnu/hdf5/serial' ./autogen.sh --without-python && \
     make -j 4 install && \
-    ldconfig"
+    ldconfig
 
 USER main
 
 RUN cp -r /tmp/scuff-em/doc/docs/examples notebooks
-ADD SiC.mie notebooks/MieScattering
+#ADD SiC.mie notebooks/MieScattering
