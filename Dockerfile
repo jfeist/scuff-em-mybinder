@@ -1,35 +1,31 @@
-FROM andrewosh/binder-base
-
-MAINTAINER Johannes Feist <johannes.feist@gmail.com>
+FROM jfeist/scuff-em:scuff_83c5ff2
 
 USER root
 
-# install the packages necessary to compile scuff-em,
-# and clean up as much as possible afterwards to keep the image small
-RUN apt-get update && \
-    DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-      build-essential \
-      automake \
-      libtool \
-      flex \
-      bison \
-      gfortran \
-      libreadline-dev \
-      libopenblas-dev \
-      liblapack-dev \
-      libhdf5-dev \
-      ca-certificates \
-      git \
-      gmsh
+RUN apt-get update \
+    && DEBIAN_FRONTEND=noninteractive apt-get install -y \
+      python3-pip \
+      gmsh \
+    && rm -rf /var/lib/apt/lists/*
 
-# clone the latest scuff-em version from github, compile and install it
-RUN git clone https://github.com/HomerReid/scuff-em.git /tmp/scuff-em && \
-    cd /tmp/scuff-em && \
-    CPPFLAGS='-I/usr/include/hdf5/serial' LDFLAGS='-L/usr/lib/x86_64-linux-gnu/hdf5/serial' ./autogen.sh --without-python && \
-    make -j 4 install && \
-    ldconfig
+RUN python3 -m pip install jupyterlab jupyterhub matplotlib
 
-USER main
+ARG NB_USER=jovyan
+ARG NB_UID=1000
+ENV USER ${NB_USER}
+ENV NB_UID ${NB_UID}
+ENV HOME /home/${NB_USER}
 
-RUN cp -r /tmp/scuff-em/doc/docs/examples notebooks
-#ADD SiC.mie notebooks/MieScattering
+RUN adduser --disabled-password \
+    --gecos "Default user" \
+    --uid ${NB_UID} \
+    ${NB_USER}
+
+WORKDIR ${HOME}
+RUN cp -r /tmp/scuff-em/doc/docs/examples/* . 
+COPY SiC.mie MieScattering
+COPY index.ipynb .
+RUN chown -R ${NB_UID} ${HOME}
+USER ${NB_USER}
+
+ENTRYPOINT []
